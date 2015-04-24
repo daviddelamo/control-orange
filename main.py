@@ -5,13 +5,61 @@ import Config
 
 __author__ = 'David'
 
-import custTray
 import wx
 
 import ctypes
 
 controlOrange = u'dama.org.controlOrange.001'  # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(controlOrange)
+
+class CustomTaskBarIcon(wx.TaskBarIcon):
+    """"""
+
+    # ----------------------------------------------------------------------
+    def __init__(self, frame):
+        """Constructor"""
+        wx.TaskBarIcon.__init__(self)
+        self.frame = frame
+
+        img = wx.Image("network.png", wx.BITMAP_TYPE_ANY)
+        bmp = wx.BitmapFromImage(img)
+        self.icon = wx.EmptyIcon()
+        self.icon.CopyFromBitmap(bmp)
+
+        self.SetIcon(self.icon, "Restore")
+        self.Bind(wx.EVT_TASKBAR_LEFT_DOWN, self.OnTaskBarLeftClick)
+
+    def OnTaskBarActivate(self, evt):
+        """"""
+        pass
+
+    def OnTaskBarClose(self, evt):
+        """
+        Destroy the taskbar icon and frame from the taskbar icon itself
+        """
+        self.frame.Close()
+
+    def OnTaskBarLeftClick(self, evt):
+        """
+        Create the right-click menu
+        """
+        self.frame.Show()
+        self.frame.Restore()
+
+    def CreatePopupMenu(self):
+        self.menu = wx.Menu()
+        configurar = self.menu.Append(wx.NewId(), "Configurar")
+        salir = self.menu.Append(wx.NewId(), "Salir")
+
+        self.Bind(wx.EVT_MENU, self.OnClose, salir)
+        self.Bind(wx.EVT_MENU, self.configure, configurar)
+
+        return self.menu
+
+    def actualizaballoon(self, download):
+        gbdownload = download / 1024 / 1024 / 1024
+        self.SetIcon(self.icon, "Total descargado: " + str("%.2f" % gbdownload) + "Gb")
+        # self.ShowBalloon("Total descargado", str("%.2f" % gbdownload) + "Gb")
 
 
 class MainFrame(wx.Frame):
@@ -21,7 +69,7 @@ class MainFrame(wx.Frame):
         """Constructor"""
         wx.Frame.__init__(self, None, title="Control de ancho de banda")
         panel = wx.Panel(self)
-        self.tbIcon = custTray.CustomTaskBarIcon(self)
+        self.tbIcon = CustomTaskBarIcon(self)
         img = wx.Image("network.png", wx.BITMAP_TYPE_ANY)
         bmp = wx.BitmapFromImage(img)
         self.icon = wx.EmptyIcon()
@@ -47,7 +95,6 @@ class MainFrame(wx.Frame):
             self.Hide()
         else:
             self.Show()
-
 
     def onClose(self, evt):
 

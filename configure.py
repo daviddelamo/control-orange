@@ -140,6 +140,7 @@ class ConfigureDialog(wx.Dialog):
 
     def inserta_registro_inicio(self):
         ruta_ejecutable = os.path.dirname(os.path.realpath(__file__)) + '\\ControlOrange.exe'
+        print "ruta_ehecutable: ", ruta_ejecutable
         keyVal = RUTA_REGISTRO
         try:
             key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, keyVal, 0, _winreg.KEY_ALL_ACCESS)
